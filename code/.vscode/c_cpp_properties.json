@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/denis/Téléchargements/arduino-1.8.12/tools/**",
+                "/home/denis/Téléchargements/arduino-1.8.12/hardware/arduino/avr/**",
+                "${workspaceFolder}/**",
+                "/home/denis/Arduino/libraries/**",
+                "/home/denis/Téléchargements/arduino-1.8.12/hardware/tools/avr/avr/include/**",
+                "/home/denis/Téléchargements/arduino-1.8.12/hardware/tools/avr/lib/gcc/avr/7.3.0/include/**"
+            ],
+            "defines": [
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "forcedInclude": [
+                "/home/denis/Téléchargements/arduino-1.8.12/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ]
+        }
+    ],
+    "version": 4
+}
