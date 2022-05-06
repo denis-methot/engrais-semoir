@@ -25,8 +25,9 @@ const uint8_t DIMINUE_V = 7;          // D7 = Diminue vitesse
 const uint8_t STOP = 9;               // D9 = Stop moteur
 const uint16_t POLL_TIME_MS = 100;    // Lecture des entrees 10 fois par secondes
 const uint8_t FULL_SCALE_SECONDS = 5; // Nombre de secondes pour atteindre la vitesse maximale
-const uint16_t DELTA_SPEED_CHANGE_PER_POLL = ((POLL_TIME_MS / 100) * (MAX_STEPS_PAR_SEC / FULL_SCALE_SECONDS)) / 10;
-const float MULTIPLICATEUR_MAX = 5.0; // Multiplicateur maximal à appliquer sur DELTA_SPEED_CHANGE_PER_POLL
+//const uint16_t DELTA_SPEED_CHANGE_PER_POLL = ((POLL_TIME_MS / 100) * (MAX_STEPS_PAR_SEC / FULL_SCALE_SECONDS)) / 10;
+const uint16_t DELTA_SPEED_CHANGE_PER_POLL = 1;
+const float MULTIPLICATEUR_MAX = 40.0; // Multiplicateur maximal à appliquer sur DELTA_SPEED_CHANGE_PER_POLL
 
 void setup()
 {
@@ -53,6 +54,7 @@ static void check_inputs()
    static unsigned long lastTimeMs = 0;
    int8_t cur_speed_dir = 0;
    static int8_t old_speed_dir = 0;
+   static int8_t successiveCount = 0;
    unsigned long curTimeMs = millis();
    long deltaTimeMs;
 
@@ -72,15 +74,33 @@ static void check_inputs()
    // Sample Inputs
    if (digitalRead(AUGMENTE_V) == 1)
    {
-      curSpeed = min(curSpeed + (DELTA_SPEED_CHANGE_PER_POLL*multiplicateur), MAX_STEPS_PAR_SEC);
-      multiplicateur = min(multiplicateur+0.2,MULTIPLICATEUR_MAX);
-      cur_speed_dir=1;
+       if (old_speed_dir == 1)
+       {
+           successiveCount+=8;
+           successiveCount = min(successiveCount, 40);
+           curSpeed = min(curSpeed + (DELTA_SPEED_CHANGE_PER_POLL * multiplicateur), MAX_STEPS_PAR_SEC);
+           multiplicateur = min(multiplicateur + successiveCount*1, MULTIPLICATEUR_MAX);
+       }
+       else
+       {
+           successiveCount = 0;
+       }
+       cur_speed_dir = 1;
    }
    else if (digitalRead(DIMINUE_V) == 1)
    {
-      curSpeed = max(curSpeed - (DELTA_SPEED_CHANGE_PER_POLL*multiplicateur), 0);
-      multiplicateur = min(multiplicateur+0.2,MULTIPLICATEUR_MAX);
-      cur_speed_dir=-1;
+       if (old_speed_dir == -1)
+       {
+           successiveCount+=8;
+           successiveCount = min(successiveCount, 40);
+           curSpeed = max(curSpeed - (DELTA_SPEED_CHANGE_PER_POLL * multiplicateur), 0);
+           multiplicateur = min(multiplicateur + successiveCount*1, MULTIPLICATEUR_MAX);
+       }
+       else
+       {
+           successiveCount = 0;
+       }
+       cur_speed_dir = -1;
    }
    else if (digitalRead(STOP) == 1)
    {
@@ -92,6 +112,7 @@ static void check_inputs()
    {
       multiplicateur = 1.0;
       cur_speed_dir=0;
+      successiveCount = 0;
    }
 
    if (old_speed_dir != cur_speed_dir)
